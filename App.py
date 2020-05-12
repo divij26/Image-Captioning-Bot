@@ -1,4 +1,6 @@
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, request
+import ImageCaptions
+
 
 app = Flask(__name__)
 
@@ -20,6 +22,21 @@ def about():
 @app.route('/home')
 def home():
     return redirect('/')
+
+@app.route("/", methods = ["POST"])
+def submit_data():
+    if request.method == "POST":
+        f = request.files["userfile"]
+        path = "./static/{}".format(f.filename) + f.filename
+        f.save(path)
+        caption = ImageCaptions.caption_image(f)
+
+        res_dic = {
+            "image": path,
+            "caption": caption
+        }
+
+    return render_template("index.html", result_dic = res_dic)
 
 
 if __name__ == "__main__":
